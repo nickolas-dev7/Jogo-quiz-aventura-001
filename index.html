@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Aventura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #74ebd5, #9face6);
+      color: #333;
+      padding: 20px;
+    }
+    .quiz-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+      display: inline-block;
+      width: 400px;
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>🌟 Quiz Aventura 🌟</h1>
+  <div class="quiz-box">
+    <p id="question">Carregando pergunta...</p>
+    <div id="answers"></div>
+    <p id="feedback"></p>
+    <p><strong>Pontos:</strong> <span id="score">0</span></p>
+    <button id="nextBtn" class="hidden">Próxima Pergunta ➡️</button>
+    <button id="pauseBtn">⏸️ Pausar</button>
+    <button id="resumeBtn" class="hidden">▶️ Retomar</button>
+    <button id="restartBtn">🔄 Reiniciar</button>
+    <button id="endBtn">❌ Encerrar</button>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Quanto é 7 x 8?", answers: ["54", "56", "64"], correct: 1 },
+      { question: "Qual é o maior planeta do Sistema Solar?", answers: ["Terra", "Júpiter", "Saturno"], correct: 1 },
+      { question: "Quem foi o primeiro presidente do Brasil?", answers: ["Dom Pedro II", "Marechal Deodoro da Fonseca", "Getúlio Vargas"], correct: 1 },
+      { question: "Qual animal é conhecido como 'o rei da selva'?", answers: ["Leão", "Elefante", "Tigre"], correct: 0 },
+      { question: "Qual é a capital da França?", answers: ["Paris", "Roma", "Londres"], correct: 0 },
+      { question: "Quanto é 9 x 9?", answers: ["81", "72", "99"], correct: 0 },
+      { question: "Qual é o maior oceano do mundo?", answers: ["Atlântico", "Índico", "Pacífico"], correct: 2 },
+      { question: "Em que continente fica o Egito?", answers: ["África", "Ásia", "Europa"], correct: 0 },
+      { question: "Quantos lados tem um hexágono?", answers: ["5", "6", "8"], correct: 1 },
+      { question: "Qual é o metal usado para fazer moedas de 1 real?", answers: ["Ouro", "Níquel", "Cobre"], correct: 1 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let paused = false;
+
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const feedbackEl = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const nextBtn = document.getElementById("nextBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resumeBtn = document.getElementById("resumeBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const endBtn = document.getElementById("endBtn");
+
+    function loadQuestion() {
+      if (paused) return;
+      feedbackEl.textContent = "";
+      nextBtn.classList.add("hidden");
+      const q = questions[currentQuestion];
+      questionEl.textContent = q.question;
+      answersEl.innerHTML = "";
+      q.answers.forEach((answer, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = answer;
+        btn.onclick = () => checkAnswer(index);
+        answersEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (paused) return;
+      const q = questions[currentQuestion];
+      if (selected === q.correct) {
+        feedbackEl.textContent = "✅ Muito bem! Resposta certa!";
+        score++;
+        scoreEl.textContent = score;
+      } else {
+        feedbackEl.textContent = "❌ Ops! A resposta correta é: " + q.answers[q.correct];
+      }
+      nextBtn.classList.remove("hidden");
+      Array.from(answersEl.children).forEach(btn => btn.disabled = true);
+    }
+
+    nextBtn.onclick = () => {
+      if (paused) return;
+      currentQuestion++;
+      if (currentQuestion >= questions.length) {
+        currentQuestion = 0; // volta ao início para continuar
+      }
+      loadQuestion();
+    };
+
+    pauseBtn.onclick = () => {
+      paused = true;
+      feedbackEl.textContent = "⏸️ Jogo pausado.";
+      pauseBtn.classList.add("hidden");
+      resumeBtn.classList.remove("hidden");
+    };
+
+    resumeBtn.onclick = () => {
+      paused = false;
+      feedbackEl.textContent = "▶️ Jogo retomado.";
+      resumeBtn.classList.add("hidden");
+      pauseBtn.classList.remove("hidden");
+    };
+
+    restartBtn.onclick = () => {
+      score = 0;
+      scoreEl.textContent = score;
+      currentQuestion = 0;
+      paused = false;
+      pauseBtn.classList.remove("hidden");
+      resumeBtn.classList.add("hidden");
+      loadQuestion();
+    };
+
+    endBtn.onclick = () => {
+      questionEl.textContent = "👋 Jogo encerrado.";
+      answersEl.innerHTML = "";
+      feedbackEl.textContent = "Você fez " + score + " ponto(s).";
+      nextBtn.classList.add("hidden");
+    };
+
+    loadQuestion();
+  </script>
+</body>
+</html>
